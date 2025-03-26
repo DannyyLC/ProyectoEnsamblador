@@ -54,6 +54,11 @@ void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y) {
         gameArea[i][WIDTH - 1] = '#';
     }
 
+    // Colocar los 'P' en posiciones fijas en los bordes
+    gameArea[0][5] = 'P';  
+    gameArea[HEIGHT - 1][15] = 'P'; 
+    gameArea[7][0] = 'P';   
+
     // Colocar 'X' en posiciones aleatorias dentro del area de juego
     srand(time(NULL));
     for (int i = 0; i < NUM_X; i++) {
@@ -83,6 +88,8 @@ void printGame(char gameArea[HEIGHT][WIDTH]) {
                 setColor(2);
             else if (gameArea[i][j] == 'X')
                 setColor(4);
+            else if(gameArea[i][j] == 'P')
+                setColor(6);
             else
                 setColor(7);
 
