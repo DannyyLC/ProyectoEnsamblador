@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <conio.h>  
+#include <windows.h>
 
 #define WIDTH 35
 #define HEIGHT 15
@@ -9,6 +10,7 @@
 
 void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y);
 void printGame(char gameArea[HEIGHT][WIDTH]);
+void setColor(int color);
 extern void moveCharacter(int *x, int *y, char gameArea[HEIGHT][WIDTH], char input);  
 
 int main() {
@@ -22,10 +24,11 @@ int main() {
 
         if (_kbhit()) {  
             input = _getch();
+            printf("%c", input);
             moveCharacter(&x, &y, gameArea, input);
             system("cls"); 
             printGame(gameArea); 
-
+            printf("Player Position: x=%d, y=%d\n", x, y);
         }
     }
 
@@ -74,8 +77,23 @@ void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y) {
 void printGame(char gameArea[HEIGHT][WIDTH]) { 
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
+            if (gameArea[i][j] == '#')
+                setColor(13);
+            else if (gameArea[i][j] == 'C')
+                setColor(2);
+            else if (gameArea[i][j] == 'X')
+                setColor(4);
+            else
+                setColor(7);
+
             printf("%c", gameArea[i][j]);
         }
         printf("\n");
     }
+}
+
+// Seleccionar el color con el cual se imprimira el caracter
+void setColor(int color) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, color);
 }
