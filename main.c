@@ -7,10 +7,13 @@
 #define WIDTH 35
 #define HEIGHT 15
 #define NUM_X 8
+#define SCREEN_WIDTH 172
+#define SCREEN_HEIGHT 20
 
 void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y);
 void printGame(char gameArea[HEIGHT][WIDTH]);
 void setColor(int color);
+void gotoxy(int x, int y);
 extern void moveCharacter(int *x, int *y, char gameArea[HEIGHT][WIDTH], char input);  
 
 int main() {
@@ -28,7 +31,6 @@ int main() {
             moveCharacter(&x, &y, gameArea, input);
             system("cls"); 
             printGame(gameArea); 
-            printf("Player Position: x=%d, y=%d\n", x, y);
         }
     }
 
@@ -57,7 +59,8 @@ void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y) {
     // Colocar los 'P' en posiciones fijas en los bordes
     gameArea[0][5] = 'P';  
     gameArea[HEIGHT - 1][15] = 'P'; 
-    gameArea[7][0] = 'P';   
+    gameArea[7][0] = 'P';  
+    gameArea[3][WIDTH - 1] = 'P'; 
 
     // Colocar 'X' en posiciones aleatorias dentro del area de juego
     srand(time(NULL));
@@ -79,9 +82,21 @@ void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y) {
 }
 
 // Imprime el area de juego
-void printGame(char gameArea[HEIGHT][WIDTH]) { 
-    for (int i = 0; i < HEIGHT; i++) {
-        for (int j = 0; j < WIDTH; j++) {
+void printGame(char gameArea[HEIGHT][WIDTH]) 
+{ 
+    int startX = (SCREEN_WIDTH - WIDTH) / 2;
+    int startY = (SCREEN_HEIGHT - HEIGHT) / 2;
+
+    // Titulo del juego
+    gotoxy(SCREEN_WIDTH / 2 - 14, startY - 2);
+    setColor(3);
+    printf("Empuja las X por la salida!");
+
+    for (int i = 0; i < HEIGHT; i++) 
+    {
+        gotoxy(startX, startY + i);
+        for (int j = 0; j < WIDTH; j++) 
+        {
             if (gameArea[i][j] == '#')
                 setColor(13);
             else if (gameArea[i][j] == 'C')
@@ -103,4 +118,12 @@ void printGame(char gameArea[HEIGHT][WIDTH]) {
 void setColor(int color) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, color);
+}
+
+// Mueve el cursor a una posición específica
+void gotoxy(int x, int y) {
+    COORD coord;
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
