@@ -32,7 +32,7 @@ moveCharacter:
     cmp esi, 'd'
     je move_right
 
-    jmp end_function    ; tecla invalida(No wasd)
+    jmp end_function    ; tecla invalida (No wasd)
     
 move_up:
     dec ebx             ; y = y - 1
@@ -55,16 +55,16 @@ check_movement:
     imul ecx, 35        ; ecx = y * WIDTH (35)
     add ecx, eax        ; ecx = y*WIDTH + x
     
-    ; Revisar el contenido de la nueva posiscion
+    ; Revisar el contenido de la nueva posicion
     mov dl, [r14 + rcx] ; Obtener el caracter de la nueva posicion
     
-    cmp dl, ' '         ; Espacio vacio(podemos movernos)
+    cmp dl, ' '         ; Espacio vacio (podemos movernos)
     je update_position
     
     cmp dl, 'X'         ; X (necesitamos empujar)
     je check_push
     
-    ; Si no espacio vacio ni X no nos podemos mover, es un limite(#)
+    ; Si no es espacio vacio ni X, no nos podemos mover, es un limite (#)
     mov eax, [r12]
     mov ebx, [r13]
     jmp end_function
@@ -86,25 +86,29 @@ check_push:
     jmp end_function
     
 push_up:
-    dec edx             ; Revisar posiscion arriba
+    dec edx             ; Revisar posicion arriba
     jmp check_push_space
     
 push_down:
-    inc edx             ; Revisar posiscion abajo
+    inc edx             ; Revisar posicion abajo
     jmp check_push_space
     
 push_left:
-    dec edi             ; Revisar posiscion izquierda
+    dec edi             ; Revisar posicion izquierda
     jmp check_push_space
     
 push_right:
-    inc edi             ; Revisar posiscion derecha
+    inc edi             ; Revisar posicion derecha
     
 check_push_space:
     ; Indice para la posicion desplazada
     mov ecx, edx
     imul ecx, 35
     add ecx, edi
+    
+    ; Revisar si hay una 'P' en la nueva posicion
+    cmp byte [r14 + rcx], 'P'
+    je remove_x        ; Si es una 'P', eliminar la 'X'
     
     ; Hay espacio para empujar
     cmp byte [r14 + rcx], ' '
@@ -114,6 +118,14 @@ check_push_space:
     mov byte [r14 + rcx], 'X'
     jmp update_position
     
+remove_x:
+    ; Eliminar la 'X' de la posicion actual
+    mov ecx, ebx        ; y
+    imul ecx, 35        ; y * WIDTH
+    add ecx, eax        ; y*WIDTH + x
+    mov byte [r14 + rcx], ' '  ; Quitar la 'X'
+    jmp update_position
+    
 cant_push:
     ; No se puede empujar
     mov eax, [r12]
@@ -121,7 +133,7 @@ cant_push:
     jmp end_function
     
 update_position:
-    ; Limpiar antigua posiscion
+    ; Limpiar antigua posicion del jugador
     mov ecx, [r13]      ; cargar y original
     imul ecx, 35        ; y * WIDTH
     add ecx, [r12]      ; y*WIDTH + x
