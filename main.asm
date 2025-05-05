@@ -11,12 +11,14 @@ moveCharacter:
     push r12
     push r13
     push r14
+    push r15
     
     ; Parametros de la funcion
     mov r12, rcx        ; r12 = puntero a x
     mov r13, rdx        ; r13 = puntero a y
     mov r14, r8         ; r14 = gameArea
     movzx esi, r9b      ; esi = input 
+    mov r15, [rbp + 48] ; r15 = puntero a remainingX
     
     ; Cargar coordenadas actuales
     mov eax, [r12]      ; eax = x
@@ -124,6 +126,12 @@ remove_x:
     imul ecx, 35        ; y * WIDTH
     add ecx, eax        ; y*WIDTH + x
     mov byte [r14 + rcx], ' '  ; Quitar la 'X'
+
+    ; Decrementar remainingX
+    mov ecx, [r15]      ; Cargar valor actual
+    dec ecx             ; Decrementar
+    mov [r15], ecx      ; Guardar valor actualizado
+    
     jmp update_position
     
 cant_push:
@@ -151,6 +159,7 @@ update_position:
     
 end_function:
     ; Restaurar registros
+    pop r15
     pop r14
     pop r13
     pop r12

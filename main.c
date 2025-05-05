@@ -7,29 +7,29 @@
 #define WIDTH 35
 #define HEIGHT 15
 #define NUM_X 8
-#define SCREEN_WIDTH 172
-#define SCREEN_HEIGHT 20
 
-void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y);
-void printGame(char gameArea[HEIGHT][WIDTH]);
+void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y, int remainingX);
+void printGame(char gameArea[HEIGHT][WIDTH], int remainingX);
 void setColor(int color);
 void gotoxy(int x, int y);
-extern void moveCharacter(int *x, int *y, char gameArea[HEIGHT][WIDTH], char input);  
+extern void moveCharacter(int *x, int *y, char gameArea[HEIGHT][WIDTH], char input, int *remainingX);  
 
 int main() {
     char gameArea[HEIGHT][WIDTH];
     int x, y;  
     char input;
+    int remainingX = NUM_X;
+
     system("cls"); 
-    initGame(gameArea, &x, &y);  
+    initGame(gameArea, &x, &y, remainingX);  
 
     while (1) {   
 
         if (_kbhit()) {  
             input = _getch();
-            moveCharacter(&x, &y, gameArea, input);
-            system("cls"); 
-            printGame(gameArea); 
+            moveCharacter(&x, &y, gameArea, input, &remainingX);
+            system("cls");
+            printGame(gameArea, remainingX); 
         }
     }
 
@@ -37,7 +37,7 @@ int main() {
 }
 
 // Inicializa el area de juego y coloca al jugador
-void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y) {
+void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y, int remainingX) {
     // Llenar con espacios
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
@@ -77,11 +77,11 @@ void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y) {
     *y = HEIGHT / 2;
     gameArea[*y][*x] = 'C';
 
-    printGame(gameArea);
+    printGame(gameArea, remainingX);
 }
 
 // Imprime el area de juego
-void printGame(char gameArea[HEIGHT][WIDTH]) 
+void printGame(char gameArea[HEIGHT][WIDTH], int remainingX) 
 { 
     // Obtener el tamaño actual de la consola
     CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -100,12 +100,22 @@ void printGame(char gameArea[HEIGHT][WIDTH])
     // Calculamos la posicion del titulo
     int titleLength = 27;
     int titleX = startX + (WIDTH - titleLength) / 2;
-    int titleY = startY - 2; 
-    
-    // Titulo del juego
+    int titleY = startY - 4;    
+
+    // Imprimir titulo del juego
     gotoxy(titleX, titleY);
     setColor(3);
     printf("Empuja las X por la salida!");
+
+    //Calculamos la posicion del contador de X restantes
+    int counterLength = 23;
+    int counterX = startX + (WIDTH - counterLength) / 2;
+    int counterY = startY - 2; 
+
+    // Imprimir contador de x
+    gotoxy(counterX, counterY);
+    setColor(3);
+    printf("Objetivos restantes: %d", remainingX);
 
     for (int i = 0; i < HEIGHT; i++) 
     {
