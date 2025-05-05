@@ -6,22 +6,24 @@
 
 #define WIDTH 35
 #define HEIGHT 15
-#define NUM_X 8
 
-void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y, int remainingX);
+void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y, int numX, int remainingX);
 void printGame(char gameArea[HEIGHT][WIDTH], int remainingX);
 void setColor(int color);
 void gotoxy(int x, int y);
-extern void moveCharacter(int *x, int *y, char gameArea[HEIGHT][WIDTH], char input, int *remainingX);  
+extern void moveCharacter(int *x, int *y, char gameArea[HEIGHT][WIDTH], char input, int *remainingX);
+void selectDifficulty(int *numX, int *time);
 
 int main() {
     char gameArea[HEIGHT][WIDTH];
-    int x, y;  
+    int x, y, numX, time;  
     char input;
-    int remainingX = NUM_X;
+
+    selectDifficulty(&numX, &time);
+    int remainingX = numX;
 
     system("cls"); 
-    initGame(gameArea, &x, &y, remainingX);  
+    initGame(gameArea, &x, &y, numX, remainingX);  
 
     while (1) {   
 
@@ -29,7 +31,10 @@ int main() {
             input = _getch();
             moveCharacter(&x, &y, gameArea, input, &remainingX);
             system("cls");
-            printGame(gameArea, remainingX); 
+            printGame(gameArea, remainingX);
+            if (!remainingX){
+                printf("Juego terminado!");
+            }
         }
     }
 
@@ -37,7 +42,7 @@ int main() {
 }
 
 // Inicializa el area de juego y coloca al jugador
-void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y, int remainingX) {
+void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y, int numX, int remainingX) {
     // Llenar con espacios
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
@@ -63,7 +68,7 @@ void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y, int remainingX) {
 
     // Colocar 'X' en posiciones aleatorias dentro del area de juego
     srand(time(NULL));
-    for (int i = 0; i < NUM_X; i++) {
+    for (int i = 0; i < numX; i++) {
         int x, y;
         do {
             x = rand() % (WIDTH - 2) + 1;
@@ -152,3 +157,45 @@ void gotoxy(int x, int y) {
     coord.Y = y;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
+
+void selectDifficulty(int *numX, int *time){
+    printf("Selecciona la dificultad!");
+    printf("\n1. Facil");
+    printf("\n2. Normal");
+    printf("\n3. Heroico");
+    printf("\n4. Legendario");
+    printf("\nSeleccion: ");
+    
+    int selection;
+    
+    scanf("%d", &selection);
+
+    switch (selection)
+    {
+    case 1:
+        *numX = 6;
+        *time = 60;
+        break;
+
+    case 2:
+        *numX = 8;
+        *time = 45;
+        break; 
+
+    case 3:
+        *numX = 10;
+        *time = 30;
+        break; 
+
+    case 4:
+        *numX = 12;
+        *time = 15;
+        break; 
+
+    default:
+        *numX = 8;
+        *time = 45;
+        break;
+    }
+}
+
