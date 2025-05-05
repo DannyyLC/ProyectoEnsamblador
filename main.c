@@ -27,7 +27,6 @@ int main() {
 
         if (_kbhit()) {  
             input = _getch();
-            printf("%c", input);
             moveCharacter(&x, &y, gameArea, input);
             system("cls"); 
             printGame(gameArea); 
@@ -84,11 +83,27 @@ void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y) {
 // Imprime el area de juego
 void printGame(char gameArea[HEIGHT][WIDTH]) 
 { 
-    int startX = (SCREEN_WIDTH - WIDTH) / 2;
-    int startY = (SCREEN_HEIGHT - HEIGHT) / 2;
+    // Obtener el tamaño actual de la consola
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    int consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+    
+    // Calcular la posición de inicio para centrar el tablero
+    int startX = (consoleWidth - WIDTH) / 2;
+    int startY = (consoleHeight - HEIGHT) / 2;
+   
+    // Asegurar que no sea negativo
+    if (startX < 0) startX = 0;
+    if (startY < 0) startY = 0;
 
+    // Calculamos la posicion del titulo
+    int titleLength = 27;
+    int titleX = startX + (WIDTH - titleLength) / 2;
+    int titleY = startY - 2; 
+    
     // Titulo del juego
-    gotoxy(SCREEN_WIDTH / 2 - 14, startY - 2);
+    gotoxy(titleX, titleY);
     setColor(3);
     printf("Empuja las X por la salida!");
 
