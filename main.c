@@ -106,8 +106,8 @@ void initGame(char gameArea[HEIGHT][WIDTH], int *x, int *y, int numX, int remain
     for (int i = 0; i < numX; i++) {
         int x, y;
         do {
-            x = rand() % (WIDTH - 2) + 1;
-            y = rand() % (HEIGHT - 2) + 1;
+            x = rand() % (WIDTH - 4) + 2;
+            y = rand() % (HEIGHT - 4) + 2;
         } while (gameArea[y][x] != ' ');
         gameArea[y][x] = 'X';
     }
