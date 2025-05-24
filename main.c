@@ -3,6 +3,7 @@
 #include <time.h>
 #include <conio.h>  
 #include <windows.h>
+#include <string.h>
 
 #define WIDTH 35
 #define HEIGHT 15
@@ -19,6 +20,8 @@ extern void moveCharacter(int *x, int *y, char gameArea[HEIGHT][WIDTH], char inp
 void selectDifficulty(int *numX, int *time);
 void printFinalMessage(int result);
 DWORD WINAPI timerThread(LPVOID lpParam);
+void drawRotatingDonut(int centerX, int centerY, int frame);
+DWORD WINAPI donutAnimationThread(LPVOID lpParam);
 
 int main() {
     char gameArea[HEIGHT][WIDTH];
@@ -230,7 +233,90 @@ void gotoxy(int x, int y) {
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
+// Variables globales para la animacion de la dona
+int donutCenterX, donutCenterY;
+int donutFrame = 0;
+int animationRunning = 0;
+
+// Función para dibujar la dona giratoria
+void drawRotatingDonut(int centerX, int centerY, int frame) {
+    const char* donutFrames[][9] = {
+        {
+            "    @@@@@@    ",
+            "   @@    @@   ",
+            "  @@      @@  ",
+            " @@        @@ ",
+            " @@        @@ ",
+            " @@        @@ ",
+            "  @@      @@  ",
+            "   @@    @@   ",
+            "    @@@@@@    "
+        },
+        {
+            "    ######    ",
+            "   ##    ##   ",
+            "  ##      ##  ",
+            " ##        ## ",
+            " ##        ## ",
+            " ##        ## ",
+            "  ##      ##  ",
+            "   ##    ##   ",
+            "    ######    "
+        },
+        {
+            "    ******    ",
+            "   **    **   ",
+            "  **      **  ",
+            " **        ** ",
+            " **        ** ",
+            " **        ** ",
+            "  **      **  ",
+            "   **    **   ",
+            "    ******    "
+        },
+        {
+            "    oooooo    ",
+            "   oo    oo   ",
+            "  oo      oo  ",
+            " oo        oo ",
+            " oo        oo ",
+            " oo        oo ",
+            "  oo      oo  ",
+            "   oo    oo   ",
+            "    oooooo    "
+        }
+    };
+    
+    const int colors[] = {12, 14, 10, 11}; // Rojo, Amarillo, Verde, Cyan
+    
+    // Limpiar el área de la dona anterior
+    for (int i = 0; i < 9; i++) {
+        gotoxy(centerX - 7, centerY - 4 + i);
+        printf("               "); // 15 espacios para limpiar
+    }
+    
+    // Dibujar la nueva dona
+    setColor(colors[frame % 4]);
+    for (int i = 0; i < 9; i++) {
+        gotoxy(centerX - 7, centerY - 4 + i);
+        printf("%s", donutFrames[frame % 4][i]);
+    }
+}
+
+// Hilo para animar la dona
+DWORD WINAPI donutAnimationThread(LPVOID lpParam) {
+    while (animationRunning) {
+        drawRotatingDonut(donutCenterX, donutCenterY, donutFrame);
+        donutFrame++;
+        Sleep(300); // Cambiar frame cada 300ms
+    }
+    return 0;
+}
+
 void selectDifficulty(int *numX, int *time){
+    // Limpiar pantalla
+    system("cls");
+    
     // Obtener el tamaño actual de la consola
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
@@ -241,40 +327,56 @@ void selectDifficulty(int *numX, int *time){
     int menuWidth = 25; // Ancho aproximado del menú
     int menuHeight = 6; // Altura del menú (6 líneas)
     int startX = (consoleWidth - menuWidth) / 2;
-    int startY = (consoleHeight - menuHeight) / 2;
+    int startY = (consoleHeight - menuHeight) / 2 - 6; // Mover más hacia arriba
     
     // Asegurar que no sea negativo
     if (startX < 0) startX = 0;
-    if (startY < 0) startY = 0;
+    if (startY < 0) startY = 3;
     
-    // Título del menú
+    // Dibujar el menú primero
     gotoxy(startX, startY);
     setColor(11); // Color cyan brillante
     printf("Selecciona la dificultad!");
     
-    // Opciones del menú
-    gotoxy(startX, startY + 1);
+    gotoxy(startX, startY + 2);
     setColor(10); // Color verde
     printf("1. Facil");
     
-    gotoxy(startX, startY + 2);
+    gotoxy(startX, startY + 3);
     setColor(14); // Color amarillo
     printf("2. Normal");
     
-    gotoxy(startX, startY + 3);
+    gotoxy(startX, startY + 4);
     setColor(12); // Color rojo
     printf("3. Heroico");
     
-    gotoxy(startX, startY + 4);
+    gotoxy(startX, startY + 5);
     setColor(13); // Color magenta
     printf("4. Legendario");
     
-    gotoxy(startX, startY + 5);
+    // Configurar la animación de la dona (bien separada del menú)
+    donutCenterX = consoleWidth / 2;
+    donutCenterY = startY + menuHeight + 8; // Más separación del menú
+    animationRunning = 1;
+    donutFrame = 0;
+    
+    // Iniciar el hilo de animación
+    HANDLE hDonutThread = CreateThread(NULL, 0, donutAnimationThread, NULL, 0, NULL);
+    
+    // Esperar un poco para que la dona aparezca
+    Sleep(100);
+    
+    gotoxy(startX, startY + 7);
     setColor(7); // Color blanco
     printf("Seleccion: ");
     
     int selection;
     scanf("%d", &selection);
+    
+    // Detener la animación
+    animationRunning = 0;
+    WaitForSingleObject(hDonutThread, INFINITE);
+    CloseHandle(hDonutThread);
 
     switch (selection)
     {
