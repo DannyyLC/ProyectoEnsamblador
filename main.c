@@ -62,7 +62,44 @@ int main() {
         CloseHandle(hTimerThread);
     
         setColor(7);  // Restaurar color normal
-        printf("\n\nJuego terminado\n0. Salir\n1. Volver a iniciar\nSeleccion: ");
+        
+        // Posicionar el mensaje a la izquierda del tablero de juego
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+        int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        int consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+        
+        // Calcular la posición del tablero (igual que en printGame)
+        int boardStartX = (consoleWidth - WIDTH) / 2;
+        int boardStartY = (consoleHeight - HEIGHT) / 2;
+        
+        if (boardStartX < 0) boardStartX = 0;
+        if (boardStartY < 0) boardStartY = 0;
+        
+        // Posicionar el mensaje a la izquierda del tablero, centrado verticalmente
+        int messageX = boardStartX - 25; // 25 caracteres a la izquierda del tablero
+        int messageY = boardStartY + HEIGHT / 2 - 2; // Centrado verticalmente en el tablero
+        
+        // Asegurar que no se salga de los límites
+        if (messageX < 0) messageX = 2;
+        if (messageY < 0) messageY = 2;
+        
+        gotoxy(messageX, messageY);
+        setColor(14); // Amarillo para el título
+        printf("Juego terminado");
+        
+        gotoxy(messageX, messageY + 2);
+        setColor(12); // Rojo para salir
+        printf("0. Salir");
+        
+        gotoxy(messageX, messageY + 3);
+        setColor(10); // Verde para continuar
+        printf("1. Volver a jugar");
+        
+        gotoxy(messageX, messageY + 5);
+        setColor(7); // Blanco para la selección
+        printf("Seleccion: ");
+        
         fflush(stdin);
         scanf("%d", &op);
     }while(op != 0);
