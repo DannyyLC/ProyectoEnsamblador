@@ -231,15 +231,49 @@ void gotoxy(int x, int y) {
 }
 
 void selectDifficulty(int *numX, int *time){
+    // Obtener el tamaño actual de la consola
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    int consoleWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    int consoleHeight = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+    
+    // Calcular la posición de inicio para centrar el menú
+    int menuWidth = 25; // Ancho aproximado del menú
+    int menuHeight = 6; // Altura del menú (6 líneas)
+    int startX = (consoleWidth - menuWidth) / 2;
+    int startY = (consoleHeight - menuHeight) / 2;
+    
+    // Asegurar que no sea negativo
+    if (startX < 0) startX = 0;
+    if (startY < 0) startY = 0;
+    
+    // Título del menú
+    gotoxy(startX, startY);
+    setColor(11); // Color cyan brillante
     printf("Selecciona la dificultad!");
-    printf("\n1. Facil");
-    printf("\n2. Normal");
-    printf("\n3. Heroico");
-    printf("\n4. Legendario");
-    printf("\nSeleccion: ");
+    
+    // Opciones del menú
+    gotoxy(startX, startY + 1);
+    setColor(10); // Color verde
+    printf("1. Facil");
+    
+    gotoxy(startX, startY + 2);
+    setColor(14); // Color amarillo
+    printf("2. Normal");
+    
+    gotoxy(startX, startY + 3);
+    setColor(12); // Color rojo
+    printf("3. Heroico");
+    
+    gotoxy(startX, startY + 4);
+    setColor(13); // Color magenta
+    printf("4. Legendario");
+    
+    gotoxy(startX, startY + 5);
+    setColor(7); // Color blanco
+    printf("Seleccion: ");
     
     int selection;
-    
     scanf("%d", &selection);
 
     switch (selection)
@@ -269,5 +303,6 @@ void selectDifficulty(int *numX, int *time){
         *time = 45;
         break;
     }
+    
+    setColor(7); // Restaurar color normal
 }
-
